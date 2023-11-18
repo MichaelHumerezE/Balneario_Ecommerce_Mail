@@ -11,39 +11,29 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
 /**
  *
  * @author user
  */
-public class DMembresia {
+public class DCarrito {
     
     public int id;
-    public String nombre;
-    public double precio;
-    public String imagen;    
-    public  int periodo;
+    public int cliente_id;
     
     private BD database;
-    
-    
-    public DMembresia(){
-       this.database = new BD();  
-    }    
 
-    public DMembresia(int id, String nombre, double precio, String imagen, int periodo) {
+    public DCarrito() {
+        this.database = new BD();
+    }
+
+    public DCarrito(int id, int cliente_id) {
         this.database = new BD();
         this.id = id;
-        this.nombre = nombre;
-        this.precio = precio;
-        this.imagen = imagen;
-        this.periodo = periodo;        
+        this.cliente_id = cliente_id;       
     }
-    
-    
-    
-    // Getter y Setter para el miembro 'id'
+
     public int getId() {
         return id;
     }
@@ -52,62 +42,30 @@ public class DMembresia {
         this.id = id;
     }
 
-    // Getter y Setter para el miembro 'nombre'
-    public String getNombre() {
-        return nombre;
+    public int getCliente_id() {
+        return cliente_id;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setCliente_id(int cliente_id) {
+        this.cliente_id = cliente_id;
     }
-
-    // Getter y Setter para el miembro 'precio'
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
-
-    // Getter y Setter para el miembro 'imagen'
-    public String getImagen() {
-        return imagen;
-    }
-
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
-
-    public int getPeriodo() {
-        return periodo;
-    }
-
-    public void setPeriodo(int periodo) {
-        this.periodo = periodo;
-    }
-
     
-    
-    public List<DMembresia> listar() {
+    public List<DCarrito> listar() {
         try {            
             database.conectar();
             Statement statement = database.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM membresia");
-            List<DMembresia> membresias = new ArrayList<>();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM carrito");
+            List<DCarrito> carritos = new ArrayList<>();
             while (resultSet.next()) {
-                membresias.add( new DMembresia(
+                carritos.add( new DCarrito(
                         resultSet.getInt("id"), 
-                        resultSet.getString("nombre"), 
-                        resultSet.getDouble("precio"), 
-                        resultSet.getString("imagen"), 
-                        resultSet.getInt("periodo"))                        
-                );                
+                        resultSet.getInt("cliente_id")
+                ));                
             }
             resultSet.close();
             statement.close();
             database.desconectar();
-            return membresias;
+            return carritos;
         } catch (SQLException e) {
             System.out.println("Error: " + e);
             return null;
@@ -119,25 +77,22 @@ public class DMembresia {
             database.conectar();          
             boolean resultado = true;
             // Definir la sentencia SQL para la inserción
-            String sql = "INSERT INTO membresia (nombre, precio, imagen, periodo) " +
-                         "VALUES (?, ?, ?, ?, ?)";            
+            String sql = "INSERT INTO carrito (cliente_id) VALUES ( ? )";            
                     
             PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
             // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNombre());
-            preparedStatement.setDouble(2, getPrecio());
-            preparedStatement.setString(3, getImagen());
-            preparedStatement.setInt(4, getPeriodo());
+            preparedStatement.setInt(1, getCliente_id());
+            
             
 
             // Ejecutar la sentencia de inserción
             int filasInsertadas = preparedStatement.executeUpdate();
 
             if (filasInsertadas > 0) {
-                System.out.println("Membresía insertada con éxito.");
+                System.out.println("Carrito insertado con éxito.");
             } else {
-                System.out.println("No se pudo insertar la membresía.");
+                System.out.println("No se pudo insertar el carrito.");
                 resultado = false;
             }
 
@@ -157,23 +112,20 @@ public class DMembresia {
             boolean resultado = true;
 
             // Definir la sentencia SQL para la actualización
-            String sql = "UPDATE membresia SET nombre = ?, precio = ?, imagen = ?, fechaIni = ?, fechaFin = ? WHERE id = ?";
+            String sql = "UPDATE carrito SET cliente_id = ? WHERE id = ?";
             PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
             // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNombre());
-            preparedStatement.setDouble(2, getPrecio());
-            preparedStatement.setString(3, getImagen());
-            preparedStatement.setInt(4, getPeriodo());                        
-            preparedStatement.setInt(6, getId());
+            preparedStatement.setInt(1, getCliente_id());                                    
+            preparedStatement.setInt(2, getId());
 
             // Ejecutar la sentencia de actualización
             int filasActualizadas = preparedStatement.executeUpdate();
 
             if (filasActualizadas > 0) {
-                System.out.println("Membresía actualizada con éxito.");
+                System.out.println("Carrito editado con éxito.");
             } else {
-                System.out.println("No se pudo actualizar la membresía.");
+                System.out.println("No se pudo editar el carrito.");
                 resultado = false;
             }
 
@@ -193,7 +145,7 @@ public class DMembresia {
             boolean resultado = true;
 
             // Definir la sentencia SQL para la eliminación
-            String sql = "DELETE FROM membresia WHERE id = ?";
+            String sql = "DELETE FROM carrito WHERE id = ?";
             PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
             // Establecer el valor del parámetro (id) para la eliminación
@@ -203,9 +155,9 @@ public class DMembresia {
             int filasEliminadas = preparedStatement.executeUpdate();
 
             if (filasEliminadas > 0) {
-                System.out.println("Membresía eliminada con éxito.");
+                System.out.println("Carrito eliminado con éxito.");
             } else {
-                System.out.println("No se pudo eliminar la membresía.");
+                System.out.println("No se pudo eliminar el carrito.");
                 resultado = false;
             }
 
@@ -218,6 +170,6 @@ public class DMembresia {
             return false;
         }
     }
-
+    
     
 }
