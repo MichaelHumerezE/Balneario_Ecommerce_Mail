@@ -6,6 +6,7 @@
 package Negocio;
 
 import Datos.DDetalle;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,7 @@ public class NDetalle {
         this.precio = precio;
     }
     
-    public boolean crear( List<String> parametros ) {
+    public boolean crear( List<String> parametros ) throws SQLException{
         dDetalle.setProducto_id( Integer.valueOf( parametros.get(0) ));
         dDetalle.setNota_venta_id( Integer.valueOf( parametros.get(1) ) );
         dDetalle.setCantidad( Integer.valueOf( parametros.get(2) ) );
@@ -73,7 +74,7 @@ public class NDetalle {
         return dDetalle.crear();
     }
 
-    public boolean editar( List<String> parametros ) {  
+    public boolean editar( List<String> parametros ) throws SQLException{  
         dDetalle.setProducto_id( Integer.valueOf( parametros.get(0) ));
         dDetalle.setNota_venta_id( Integer.valueOf( parametros.get(1) ));
         dDetalle.setCantidad( Integer.valueOf( parametros.get(2) ));
@@ -81,13 +82,13 @@ public class NDetalle {
         return dDetalle.editar();
     }
 
-    public boolean eliminar( List<String> parametros ) {
+    public boolean eliminar( List<String> parametros ) throws SQLException{
         dDetalle.setProducto_id( Integer.valueOf( parametros.get(0) ));
         dDetalle.setNota_venta_id( Integer.valueOf( parametros.get(1) ));
         return dDetalle.eliminar();
     }
 
-    public List<String[]> listar() {
+    public List<String[]> listar() throws SQLException{
         List<DDetalle> dDetalles = dDetalle.listar();
         ArrayList<String[]> nDetalles = new ArrayList<>();        
         for (DDetalle detalle : dDetalles) {

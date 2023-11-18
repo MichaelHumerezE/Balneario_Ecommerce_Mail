@@ -69,133 +69,113 @@ public class DDetalle {
         this.precio = precio;
     }
     
-    public List<DDetalle> listar() {
-        try {            
-            database.conectar();
-            Statement statement = database.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM detalle");
-            List<DDetalle> detalles = new ArrayList<>();
-            while (resultSet.next()) {
-                detalles.add( new DDetalle(
-                        resultSet.getInt("producto_id"),
-                        resultSet.getInt("nota_venta_id"),
-                        resultSet.getInt("cantidad"),
-                        resultSet.getDouble("precio")                        
-                ));
-            }
-            resultSet.close();
-            statement.close();
-            database.desconectar();
-            return detalles;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return null;
+    public List<DDetalle> listar() throws SQLException{
+                   
+        database.conectar();
+        Statement statement = database.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM detalle");
+        List<DDetalle> detalles = new ArrayList<>();
+        while (resultSet.next()) {
+            detalles.add( new DDetalle(
+                    resultSet.getInt("producto_id"),
+                    resultSet.getInt("nota_venta_id"),
+                    resultSet.getInt("cantidad"),
+                    resultSet.getDouble("precio")                        
+            ));
         }
+        resultSet.close();
+        statement.close();
+        database.desconectar();
+        return detalles;
+        
     }
     
-    public boolean crear() {
-        try {
-            database.conectar();          
-            boolean resultado = true;
-            // Definir la sentencia SQL para la inserción
-            String sql = "INSERT INTO detalle (producto_id, nota_venta_id, cantidad, precio) " +
-                         "VALUES (?, ?, ?, ?)";            
-                    
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+    public boolean crear() throws SQLException{
+        
+        database.conectar();         
+        
+        // Definir la sentencia SQL para la inserción
+        String sql = "INSERT INTO detalle (producto_id, nota_venta_id, cantidad, precio) " +
+                     "VALUES (?, ?, ?, ?)";            
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setInt(1, getProducto_id());
-            preparedStatement.setInt(2, getNota_venta_id());
-            preparedStatement.setInt(3, getCantidad());
-            preparedStatement.setDouble(4, getPrecio());
-            
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Ejecutar la sentencia de inserción
-            int filasInsertadas = preparedStatement.executeUpdate();
+        // Establecer los valores de los parámetros
+        preparedStatement.setInt(1, getProducto_id());
+        preparedStatement.setInt(2, getNota_venta_id());
+        preparedStatement.setInt(3, getCantidad());
+        preparedStatement.setDouble(4, getPrecio());
 
-            if (filasInsertadas > 0) {
-                System.out.println("Detalle insertado con éxito.");
-            } else {
-                System.out.println("No se pudo insertar el Detalle.");
-                resultado = false;
-            }
 
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DDetalle.java: "
+                    + "Ocurrio un error al insertar un detalle crear()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean editar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean editar() throws SQLException{
+        
+        database.conectar();        
 
-            // Definir la sentencia SQL para la actualización
-            String sql = "UPDATE detalle SET cantidad = ?, precio = ? WHERE producto_id = ? AND nota_venta_id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la actualización
+        String sql = "UPDATE detalle SET cantidad = ?, precio = ? WHERE producto_id = ? AND nota_venta_id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer los valores de los parámetros            
-            preparedStatement.setInt(1, getCantidad());
-            preparedStatement.setDouble(2, getPrecio());            
-            preparedStatement.setInt(3, getProducto_id());
-            preparedStatement.setInt(4, getNota_venta_id());
+        // Establecer los valores de los parámetros            
+        preparedStatement.setInt(1, getCantidad());
+        preparedStatement.setDouble(2, getPrecio());            
+        preparedStatement.setInt(3, getProducto_id());
+        preparedStatement.setInt(4, getNota_venta_id());
 
-            // Ejecutar la sentencia de actualización
-            int filasActualizadas = preparedStatement.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Detalle actualizado con éxito.");
-            } else {
-                System.out.println("No se pudo actualizar el detalle.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DDetalle.java: "
+                    + "Ocurrio un error al editar un detalle editar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean eliminar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean eliminar() throws SQLException{
+        
+        database.conectar();       
 
-            // Definir la sentencia SQL para la eliminación
-            String sql = "DELETE FROM detalle WHERE producto_id = ? AND nota_venta_id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la eliminación
+        String sql = "DELETE FROM detalle WHERE producto_id = ? AND nota_venta_id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer el valor del parámetro (id) para la eliminación
-            preparedStatement.setInt(1, getProducto_id());
-            preparedStatement.setInt(1, getNota_venta_id());
+        // Establecer el valor del parámetro (id) para la eliminación
+        preparedStatement.setInt(1, getProducto_id());
+        preparedStatement.setInt(1, getNota_venta_id());
 
-            // Ejecutar la sentencia de eliminación
-            int filasEliminadas = preparedStatement.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Detalle eliminado con éxito.");
-            } else {
-                System.out.println("No se pudo eliminar el detalle.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DDetalle.java: "
+                    + "Ocurrio un error al eliminar un detalle eliminar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
     

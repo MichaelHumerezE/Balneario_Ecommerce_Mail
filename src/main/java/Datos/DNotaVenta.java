@@ -114,144 +114,121 @@ public class DNotaVenta {
     }    
     
     
-    public List<DNotaVenta> listar() {
-        try {            
-            database.conectar();
-            Statement statement = database.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM nota_venta");
-            List<DNotaVenta> nota_ventas = new ArrayList<>();
-            while (resultSet.next()) {
-                nota_ventas.add( new DNotaVenta(
-                        resultSet.getInt("id"),
-                        resultSet.getString("nit"),
-                        resultSet.getTimestamp("fecha_hora").toLocalDateTime(),
-                        resultSet.getDouble("monto_total"),
-                        resultSet.getString("nombre_cliente"),
-                        resultSet.getInt("cliente_id"),
-                        resultSet.getInt("empleado_id"),
-                        resultSet.getInt("membresia_id")
-                ));
-            }
-            resultSet.close();
-            statement.close();
-            database.desconectar();
-            return nota_ventas;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return null;
+    public List<DNotaVenta> listar() throws SQLException{
+                   
+        database.conectar();
+        Statement statement = database.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM nota_venta");
+        List<DNotaVenta> nota_ventas = new ArrayList<>();
+        while (resultSet.next()) {
+            nota_ventas.add( new DNotaVenta(
+                    resultSet.getInt("id"),
+                    resultSet.getString("nit"),
+                    resultSet.getTimestamp("fecha_hora").toLocalDateTime(),
+                    resultSet.getDouble("monto_total"),
+                    resultSet.getString("nombre_cliente"),
+                    resultSet.getInt("cliente_id"),
+                    resultSet.getInt("empleado_id"),
+                    resultSet.getInt("membresia_id")
+            ));
         }
+        resultSet.close();
+        statement.close();
+        database.desconectar();
+        return nota_ventas;
+        
     }
     
-    public boolean crear() {
-        try {
-            database.conectar();          
-            boolean resultado = true;
-            // Definir la sentencia SQL para la inserción
-            String sql = "INSERT INTO nota_venta (nit, fecha_hora, monto_total, nombre_cliente, cliente_id, empleado_id, miembro_id) " +
-                         "VALUES (?, ?, ?, ?, ?)";            
-                    
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+    public boolean crear() throws SQLException {
+        
+        database.conectar();       
+        // Definir la sentencia SQL para la inserción
+        String sql = "INSERT INTO nota_venta (nit, fecha_hora, monto_total, nombre_cliente, cliente_id, empleado_id, miembro_id) " +
+                     "VALUES (?, ?, ?, ?, ?)";            
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNit());
-            preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf( getFecha_hora() ));
-            preparedStatement.setDouble(3, getMonto_total());
-            preparedStatement.setString(4, getNombre_cliente());
-            preparedStatement.setInt(5, getCliente_id());
-            preparedStatement.setInt(6, getEmpleado_id());
-            preparedStatement.setInt(7, getMembresia_id());
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Ejecutar la sentencia de inserción
-            int filasInsertadas = preparedStatement.executeUpdate();
+        // Establecer los valores de los parámetros
+        preparedStatement.setString(1, getNit());
+        preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf( getFecha_hora() ));
+        preparedStatement.setDouble(3, getMonto_total());
+        preparedStatement.setString(4, getNombre_cliente());
+        preparedStatement.setInt(5, getCliente_id());
+        preparedStatement.setInt(6, getEmpleado_id());
+        preparedStatement.setInt(7, getMembresia_id());
 
-            if (filasInsertadas > 0) {
-                System.out.println("Nota de venta insertada con éxito.");
-            } else {
-                System.out.println("No se pudo insertar la nota de venta.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DNotaVenta.java: "
+                    + "Ocurrio un error al insertar una nota de venta crear()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean editar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean editar() throws SQLException{
+        
+        database.conectar();
+        
+        // Definir la sentencia SQL para la actualización
+        String sql = "UPDATE nota_venta SET nit = ?, fecha_hora = ?, monto_total = ?, "
+                + "nombre_cliente = ?, cliente_id = ?, empleado_id = ?, membresia_id = ? WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Definir la sentencia SQL para la actualización
-            String sql = "UPDATE nota_venta SET nit = ?, fecha_hora = ?, monto_total = ?, "
-                    + "nombre_cliente = ?, cliente_id = ?, empleado_id = ?, membresia_id = ? WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Establecer los valores de los parámetros
+        preparedStatement.setString(1, getNit());
+        preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf( getFecha_hora() ));
+        preparedStatement.setDouble(3, getMonto_total());
+        preparedStatement.setString(4, getNombre_cliente());
+        preparedStatement.setInt(5, getCliente_id());
+        preparedStatement.setInt(6, getEmpleado_id());
+        preparedStatement.setInt(7, getMembresia_id());
+        preparedStatement.setInt(6, getId());
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNit());
-            preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf( getFecha_hora() ));
-            preparedStatement.setDouble(3, getMonto_total());
-            preparedStatement.setString(4, getNombre_cliente());
-            preparedStatement.setInt(5, getCliente_id());
-            preparedStatement.setInt(6, getEmpleado_id());
-            preparedStatement.setInt(7, getMembresia_id());
-            preparedStatement.setInt(6, getId());
-
-            // Ejecutar la sentencia de actualización
-            int filasActualizadas = preparedStatement.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Nota de venta actualizada con éxito.");
-            } else {
-                System.out.println("No se pudo actualizar la nota de venta.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DNotaVenta.java: "
+                    + "Ocurrio un error al editar una nota de venta editar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean eliminar() { // Excepciones
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean eliminar() throws SQLException{ // Excepciones
+        
+        database.conectar();  
 
-            // Definir la sentencia SQL para la eliminación
-            String sql = "DELETE FROM nota_venta WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la eliminación
+        String sql = "DELETE FROM nota_venta WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer el valor del parámetro (id) para la eliminación
-            preparedStatement.setInt(1, getId());
+        // Establecer el valor del parámetro (id) para la eliminación
+        preparedStatement.setInt(1, getId());
 
-            // Ejecutar la sentencia de eliminación
-            int filasEliminadas = preparedStatement.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Nota de venta eliminada con éxito.");
-            } else {
-                System.out.println("No se pudo eliminar la nota de venta.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DNotaVenta.java: "
+                    + "Ocurrio un error al eliminar una nota de venta eliminar()");
+            throw new SQLException();
         }
-    }
-    //int id, String nit, String fecha_hora, String monto_total, String nombre_cliente, int cliente_id
-    
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
+    }        
 }

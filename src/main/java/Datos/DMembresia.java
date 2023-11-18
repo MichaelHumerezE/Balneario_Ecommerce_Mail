@@ -89,134 +89,108 @@ public class DMembresia {
 
     
     
-    public List<DMembresia> listar() {
-        try {            
-            database.conectar();
-            Statement statement = database.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM membresia");
-            List<DMembresia> membresias = new ArrayList<>();
-            while (resultSet.next()) {
-                membresias.add( new DMembresia(
-                        resultSet.getInt("id"), 
-                        resultSet.getString("nombre"), 
-                        resultSet.getDouble("precio"), 
-                        resultSet.getString("imagen"), 
-                        resultSet.getInt("periodo"))                        
-                );                
-            }
-            resultSet.close();
-            statement.close();
-            database.desconectar();
-            return membresias;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return null;
+    public List<DMembresia> listar() throws SQLException{
+                  
+        database.conectar();
+        Statement statement = database.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM membresia");
+        List<DMembresia> membresias = new ArrayList<>();
+        while (resultSet.next()) {
+            membresias.add( new DMembresia(
+                    resultSet.getInt("id"), 
+                    resultSet.getString("nombre"), 
+                    resultSet.getDouble("precio"), 
+                    resultSet.getString("imagen"), 
+                    resultSet.getInt("periodo"))                        
+            );                
         }
+        resultSet.close();
+        statement.close();
+        database.desconectar();
+        return membresias;       
     }   
     
-    public boolean crear() {
-        try {
-            database.conectar();          
-            boolean resultado = true;
-            // Definir la sentencia SQL para la inserción
-            String sql = "INSERT INTO membresia (nombre, precio, imagen, periodo) " +
-                         "VALUES (?, ?, ?, ?, ?)";            
-                    
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+    public boolean crear() throws SQLException{
+        
+        database.conectar();       
+        String sql = "INSERT INTO membresia (nombre, precio, imagen, periodo) " +
+                     "VALUES (?, ?, ?, ?, ?)";            
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNombre());
-            preparedStatement.setDouble(2, getPrecio());
-            preparedStatement.setString(3, getImagen());
-            preparedStatement.setInt(4, getPeriodo());
-            
-
-            // Ejecutar la sentencia de inserción
-            int filasInsertadas = preparedStatement.executeUpdate();
-
-            if (filasInsertadas > 0) {
-                System.out.println("Membresía insertada con éxito.");
-            } else {
-                System.out.println("No se pudo insertar la membresía.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        
+        preparedStatement.setString(1, getNombre());
+        preparedStatement.setDouble(2, getPrecio());
+        preparedStatement.setString(3, getImagen());
+        preparedStatement.setInt(4, getPeriodo());   
+        
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DMembresia.java: "
+                    + "Ocurrio un error al insertar una membresia crear()");
+            throw new SQLException();
         }
+        
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean editar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean editar() throws SQLException{
+      
+        database.conectar();            
 
-            // Definir la sentencia SQL para la actualización
-            String sql = "UPDATE membresia SET nombre = ?, precio = ?, imagen = ?, fechaIni = ?, fechaFin = ? WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la actualización
+        String sql = "UPDATE membresia SET nombre = ?, precio = ?, imagen = ?, fechaIni = ?, fechaFin = ? WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getNombre());
-            preparedStatement.setDouble(2, getPrecio());
-            preparedStatement.setString(3, getImagen());
-            preparedStatement.setInt(4, getPeriodo());                        
-            preparedStatement.setInt(6, getId());
+        // Establecer los valores de los parámetros
+        preparedStatement.setString(1, getNombre());
+        preparedStatement.setDouble(2, getPrecio());
+        preparedStatement.setString(3, getImagen());
+        preparedStatement.setInt(4, getPeriodo());                        
+        preparedStatement.setInt(6, getId());
 
-            // Ejecutar la sentencia de actualización
-            int filasActualizadas = preparedStatement.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Membresía actualizada con éxito.");
-            } else {
-                System.out.println("No se pudo actualizar la membresía.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DMembresia.java: "
+                    + "Ocurrio un error al editar una membresia editar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
    
-    public boolean eliminar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean eliminar() throws SQLException{
+       
+        database.conectar();        
 
-            // Definir la sentencia SQL para la eliminación
-            String sql = "DELETE FROM membresia WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la eliminación
+        String sql = "DELETE FROM membresia WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer el valor del parámetro (id) para la eliminación
-            preparedStatement.setInt(1, this.id);
+        // Establecer el valor del parámetro (id) para la eliminación
+        preparedStatement.setInt(1, this.id);
 
-            // Ejecutar la sentencia de eliminación
-            int filasEliminadas = preparedStatement.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Membresía eliminada con éxito.");
-            } else {
-                System.out.println("No se pudo eliminar la membresía.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DMembresia.java: "
+                    + "Ocurrio un error al eliminar una membresia eliminar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
 
     

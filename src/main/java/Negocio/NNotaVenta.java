@@ -7,6 +7,7 @@ package Negocio;
 
 import Conexion.BD;
 import Datos.DNotaVenta;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +110,7 @@ public class NNotaVenta {
         this.membresia_id = membresia_id;
     }    
     
-    public boolean crear( List<String> parametros ) {
+    public boolean crear( List<String> parametros ) throws SQLException{
         LocalDateTime fechaHoraActual = LocalDateTime.now();
         dNotaVenta.setNit( parametros.get(0) );
         dNotaVenta.setFecha_hora( fechaHoraActual );
@@ -121,7 +122,7 @@ public class NNotaVenta {
         return dNotaVenta.crear();
     }
 
-    public boolean editar( List<String> parametros ) {
+    public boolean editar( List<String> parametros ) throws SQLException{
         LocalDateTime fechaHoraActual = LocalDateTime.now();
         dNotaVenta.setId( Integer.valueOf( parametros.get(0) ));
         dNotaVenta.setNit( parametros.get(1) );
@@ -134,12 +135,12 @@ public class NNotaVenta {
         return dNotaVenta.editar();
     }
 
-    public boolean eliminar( List<String> parametros ) {
+    public boolean eliminar( List<String> parametros ) throws SQLException{
         dNotaVenta.setId( Integer.valueOf( parametros.get(0) ));
         return dNotaVenta.eliminar();
     }
 
-    public List<String[]> listar() {
+    public List<String[]> listar() throws SQLException{
         List<DNotaVenta> dNotaVentas = dNotaVenta.listar();
         ArrayList<String[]> nNotaVentas = new ArrayList<>();        
         for (DNotaVenta notaVenta : dNotaVentas) {

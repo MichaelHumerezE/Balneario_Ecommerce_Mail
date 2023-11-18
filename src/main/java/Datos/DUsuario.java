@@ -102,139 +102,118 @@ public class DUsuario {
         this.tipo = tipo;
     }    
     
-    public List<DUsuario> listar() {
-        try {            
-            database.conectar();
-            Statement statement = database.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM usuario");
-            List<DUsuario> usuarios = new ArrayList<>();
-            while (resultSet.next()) {
-                usuarios.add( new DUsuario(
-                        resultSet.getInt("id"),
-                        resultSet.getString("ci"),
-                        resultSet.getString("nombre"),
-                        resultSet.getString("sexo"),
-                        resultSet.getString("email"),
-                        resultSet.getString("password"),
-                        resultSet.getString("tipo")
-                ));
-            }
-            resultSet.close();
-            statement.close();
-            database.desconectar();
-            return usuarios;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return null;
+    public List<DUsuario> listar() throws SQLException{
+                   
+        database.conectar();
+        Statement statement = database.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM usuario");
+        List<DUsuario> usuarios = new ArrayList<>();
+        while (resultSet.next()) {
+            usuarios.add( new DUsuario(
+                    resultSet.getInt("id"),
+                    resultSet.getString("ci"),
+                    resultSet.getString("nombre"),
+                    resultSet.getString("sexo"),
+                    resultSet.getString("email"),
+                    resultSet.getString("password"),
+                    resultSet.getString("tipo")
+            ));
         }
+        resultSet.close();
+        statement.close();
+        database.desconectar();
+        return usuarios;
+        
     }
     
-    public boolean crear() {
-        try {
-            database.conectar();          
-            boolean resultado = true;
-            // Definir la sentencia SQL para la inserción
-            String sql = "INSERT INTO usuario (ci, nombre, sexo, email, password, tipo) " +
-                         "VALUES (?, ?, ?, ?, ?, ?)";            
-                    
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+    public boolean crear() throws SQLException{
+        
+        database.conectar();       
+        // Definir la sentencia SQL para la inserción
+        String sql = "INSERT INTO usuario (ci, nombre, sexo, email, password, tipo) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";            
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getCi());
-            preparedStatement.setString(2, getNombre());
-            preparedStatement.setString(3, getSexo());
-            preparedStatement.setString(4, getEmail());
-            preparedStatement.setString(5, getPassword());
-            preparedStatement.setString(6, getTipo());
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Ejecutar la sentencia de inserción
-            int filasInsertadas = preparedStatement.executeUpdate();
+        // Establecer los valores de los parámetros
+        preparedStatement.setString(1, getCi());
+        preparedStatement.setString(2, getNombre());
+        preparedStatement.setString(3, getSexo());
+        preparedStatement.setString(4, getEmail());
+        preparedStatement.setString(5, getPassword());
+        preparedStatement.setString(6, getTipo());
 
-            if (filasInsertadas > 0) {
-                System.out.println("Usuario insertado con éxito.");
-            } else {
-                System.out.println("No se pudo insertar el usuario.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DUsuario.java: "
+                    + "Ocurrio un error al insertar un usuario crear()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean editar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean editar() throws SQLException{
+        
+        database.conectar();       
 
-            // Definir la sentencia SQL para la actualización
-            String sql = "UPDATE usuario SET ci = ?, nombre = ?, sexo = ?, email = ?, password = ?, tipo = ? WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la actualización
+        String sql = "UPDATE usuario SET ci = ?, nombre = ?, sexo = ?, email = ?, password = ?, tipo = ? WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer los valores de los parámetros
-            preparedStatement.setString(1, getCi());
-            preparedStatement.setString(2, getNombre());
-            preparedStatement.setString(3, getSexo());
-            preparedStatement.setString(4, getEmail());
-            preparedStatement.setString(5, getPassword());
-            preparedStatement.setString(6, getTipo());
-            preparedStatement.setInt(7, getId());
+        // Establecer los valores de los parámetros
+        preparedStatement.setString(1, getCi());
+        preparedStatement.setString(2, getNombre());
+        preparedStatement.setString(3, getSexo());
+        preparedStatement.setString(4, getEmail());
+        preparedStatement.setString(5, getPassword());
+        preparedStatement.setString(6, getTipo());
+        preparedStatement.setInt(7, getId());
 
-            // Ejecutar la sentencia de actualización
-            int filasActualizadas = preparedStatement.executeUpdate();
-
-            if (filasActualizadas > 0) {
-                System.out.println("Usuario actualizada con éxito.");
-            } else {
-                System.out.println("No se pudo actualizar el usuario.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DUsuario.java: "
+                    + "Ocurrio un error al editar un usuario editar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
     
-    public boolean eliminar() {
-        try {
-            database.conectar();
-            boolean resultado = true;
+    public boolean eliminar() throws SQLException{
+        
+        database.conectar();        
 
-            // Definir la sentencia SQL para la eliminación
-            String sql = "DELETE FROM usuario WHERE id = ?";
-            PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
+        // Definir la sentencia SQL para la eliminación
+        String sql = "DELETE FROM usuario WHERE id = ?";
+        PreparedStatement preparedStatement = database.getConnection().prepareStatement(sql);
 
-            // Establecer el valor del parámetro (id) para la eliminación
-            preparedStatement.setInt(1, getId());
+        // Establecer el valor del parámetro (id) para la eliminación
+        preparedStatement.setInt(1, getId());
 
-            // Ejecutar la sentencia de eliminación
-            int filasEliminadas = preparedStatement.executeUpdate();
-
-            if (filasEliminadas > 0) {
-                System.out.println("Usuario eliminada con éxito.");
-            } else {
-                System.out.println("No se pudo eliminar el usuario.");
-                resultado = false;
-            }
-
-            // Cerrar la conexión y la declaración
+        if ( preparedStatement.executeUpdate() == 0 ){
             preparedStatement.close();
             database.desconectar();
-            return resultado;
-        } catch (SQLException e) {
-            System.out.println("Error: " + e);
-            return false;
+            System.err.println("Class DUsuario.java: "
+                    + "Ocurrio un error al eliminar un usuario eliminar()");
+            throw new SQLException();
         }
+
+        // Cerrar la conexión y la declaración
+        preparedStatement.close();
+        database.desconectar();
+        return true;
+        
     }
             
             

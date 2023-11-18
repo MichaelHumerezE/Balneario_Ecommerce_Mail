@@ -6,6 +6,7 @@
 package Negocio;
 
 import Datos.DUsuario;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class NUsuario {
     }   
     
     
-    public boolean crear( List<String> parametros ) {
+    public boolean crear( List<String> parametros ) throws SQLException{
         dUsuario.setCi( parametros.get(0) );
         dUsuario.setNombre( parametros.get(1) );
         dUsuario.setSexo( parametros.get(2) );
@@ -106,7 +107,7 @@ public class NUsuario {
         return dUsuario.crear();
     }
 
-    public boolean editar( List<String> parametros ) {
+    public boolean editar( List<String> parametros ) throws SQLException{
         dUsuario.setId( Integer.parseInt( parametros.get(0) ));
         dUsuario.setCi( parametros.get(1) );
         dUsuario.setNombre( parametros.get(2) );
@@ -117,12 +118,12 @@ public class NUsuario {
         return dUsuario.editar();
     }
 
-    public boolean eliminar( List<String> parametros ) {
+    public boolean eliminar( List<String> parametros ) throws SQLException{
         dUsuario.setId( Integer.parseInt( parametros.get(0) ) );
         return dUsuario.eliminar();
     }
 
-    public List<String[]> listar() {
+    public List<String[]> listar() throws SQLException{
         List<DUsuario> dUsuarios = dUsuario.listar();
          ArrayList<String[]> nUsuarios = new ArrayList<>();        
         for (DUsuario usuario : dUsuarios) {

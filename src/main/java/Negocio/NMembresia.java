@@ -8,6 +8,7 @@ package Negocio;
 
 
 import Datos.DMembresia;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
@@ -83,7 +84,7 @@ public class NMembresia {
     }
     
     
-    public boolean crear( List<String> parametros ) {
+    public boolean crear( List<String> parametros ) throws SQLException{
         dMembresia.setNombre( parametros.get(0) );
         dMembresia.setPrecio( Double.parseDouble( parametros.get(1) ));
         dMembresia.setImagen( parametros.get(2) );
@@ -91,7 +92,7 @@ public class NMembresia {
         return dMembresia.crear();
     }
 
-    public boolean editar( List<String> parametros ) {
+    public boolean editar( List<String> parametros ) throws SQLException{
         dMembresia.setId( Integer.parseInt( parametros.get(0) ) );
         dMembresia.setNombre( parametros.get(1) );
         dMembresia.setPrecio( Double.parseDouble( parametros.get(2) ));
@@ -100,12 +101,12 @@ public class NMembresia {
         return dMembresia.editar();
     }
 
-    public boolean eliminar( List<String> parametros ) {
+    public boolean eliminar( List<String> parametros ) throws SQLException{
         dMembresia.setId( Integer.parseInt( parametros.get(0) ) );
         return dMembresia.eliminar();
     }
 
-    public ArrayList<String[]> listar() {
+    public ArrayList<String[]> listar() throws SQLException{
         List<DMembresia> dMembresias = dMembresia.listar();
         ArrayList<String[]> nMembresias = new ArrayList<>();        
         for (DMembresia membresia : dMembresias) {            

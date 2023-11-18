@@ -8,6 +8,7 @@ package Negocio;
 import Conexion.BD;
 import Datos.DCarrito;
 import Datos.DMembresia;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,23 +48,23 @@ public class NCarrito {
         this.cliente_id = cliente_id;
     }
     
-    public boolean crear( List<String> parametros ) {
+    public boolean crear( List<String> parametros ) throws SQLException{
         dCarrito.setCliente_id( Integer.valueOf( parametros.get(0) ));        
         return dCarrito.crear();
     }
 
-    public boolean editar( List<String> parametros ) {
+    public boolean editar( List<String> parametros ) throws SQLException{
         dCarrito.setId( Integer.valueOf( parametros.get(0) ));
         dCarrito.setCliente_id( Integer.valueOf( parametros.get(0) ));
         return dCarrito.editar();
     }
 
-    public boolean eliminar( List<String> parametros ) {
+    public boolean eliminar( List<String> parametros ) throws SQLException{
         dCarrito.setId( Integer.valueOf( parametros.get(0) ));
         return dCarrito.eliminar();
     }
 
-    public List<String[]> listar() {
+    public List<String[]> listar() throws SQLException{
         List<DCarrito> dCarritos = dCarrito.listar();
         ArrayList<String[]> nCarritos = new ArrayList<>();        
         for (DCarrito carrito : dCarritos) {            
